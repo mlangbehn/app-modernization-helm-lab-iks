@@ -12,7 +12,7 @@ An application in Kubernetes typically consists of at least two resource types: 
 
 For any application in Kubernetes, you will need to run several Kubernetes commands (`kubectl`) to create and configure resources. With Helm, instead of manually creating each resource separately, you can create many resources with one command (`helm install`). This greatly simplifies the process and allows you to manage the related resources as a single unit called a Helm chart.
 
-Helm charts are stored in a Helm chart repository, which is an HTTP server that houses packaged charts and an `index.yaml` file. The `index.yaml` file has an index of all the charts in the repository. A chart repository can be any HTTP server that can serve YAML and .tar files and can answer GET HTTP requests. Therefore, you have many options for hosting your chart repository such as a Google Cloud Storage bucket, an Amazon S3 bucket or you can create your own web server. For this lab, we will be using a local test repository provided by Helm to  to test the hosting of a  chart repository.
+Helm charts are stored in a Helm chart repository, which is an HTTP server that houses packaged charts and an `index.yaml` file. The `index.yaml` file has an index of all the charts in the repository. A chart repository can be any HTTP server that can serve YAML and .tar files and can answer GET HTTP requests. Therefore, you have many options for hosting your chart repository such as a Google Cloud Storage bucket, an Amazon S3 bucket or you can create your own web server. For this lab, we will be using a local test repository provided by Helm to  test the hosting of a chart repository.
 
 In this lab you'll create a Helm chart repository and use it to deploy a small Java EE app to the IBM Cloud Kubernetes Service using the open source Helm CLI.
 
@@ -91,22 +91,20 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
    # Generate the chart archive.
    helm package chart/pbw-liberty-mariadb -d ~/.helm/repository/local
 
-   # Generate index for repository
-   helm repo index ~/.helm/repository/local --url http://127.0.0.1:8879/charts
-
 
 ```
 
 ### Step 4: Configure Helm to serve up the repo via HTTP
 
-1. In your terminal window type the following command, to start the local test Helm repository
+1. In your terminal window type the following command, to start the local test Helm repository substituting for [PORT_NUMBER]. If you're using a web based terminal as part of an IBM instructor led workshop, use a port number derived from your username so it will be nique and not conflist with other users. For example if your username is ``user23`` use port ``9023``, if your username is ``user09`` use port ``9009`` and so on. If you're using a terminal on your own machine use any free port number.
+
 ```
-   helm serve &
+   helm serve --address 127.0.0.1:[PORT_NUMBER] &
 ```
 
-2. In your terminal window type the following command. Verify that the contents of *index.yaml* are returned and it contains the chart archive you just added
+2. In your terminal window type the following command. Verify that the contents of *index.yaml* are returned and it contains the chart archive you just added. Use the same port number you used in the previous instruction.
 ```
-   curl http://127.0.0.1:8879/charts/index.yaml
+   curl http://127.0.0.1:[PORT_NUMBER]/charts/index.yaml
 ```
 
 ### Step 5: Deploy the legacy JEE app from your new Helm repo
