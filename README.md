@@ -120,13 +120,13 @@ You'll commands to get the endpoint and port number of your deployed Helm releas
 
 1. Run the following command to get the port number of your deployed app
 ```
-   kubectl --namespace default get service pbw-liberty-mariadb-liberty -o jsonpath='{.spec.ports[0].nodePort}'
+   echo `kubectl --namespace default get service pbw-liberty-mariadb-liberty -o jsonpath='{.spec.ports[0].nodePort}'``
 ```
 
 2. Run the following command to get the external IP address  of the first worker node in your cluster
 ```bash
    # Substitute your cluster name e.g. user05-cluster for [YOUR_CLUSTER_NAME]
-   ibmcloud cs workers [YOUR_CLUSTER_NAME] | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
+   ibmcloud ks workers [YOUR_CLUSTER_NAME] | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
 ```
 3. In your browser's address bar enter the URL of your deployed app. The URL will be the external IP address of the first worker in your cluster followed by a colon and then followed by the port number of your deployed app. For example if your external IP is 169.61.73.182 and the port is 30961 the URL will be ```http://169.61.73.182:30961```
 
