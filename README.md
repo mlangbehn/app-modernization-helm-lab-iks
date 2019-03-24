@@ -18,7 +18,7 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 ### Setup
 
-1. If following this lab as part of an IBM instructor led workshop, please follow these instructions to setup your workshop environment: https://gist.github.com/jzaccone/0cdc321e5dc8adb0dca98ca861284c01
+1. If following this lab as part of an IBM instructor led workshop, please follow these instructions to setup your workshop environment: https://gist.github.com/djccarew/83da0dca62dbc4951efddbe1f49105ca
 
 2. Initialize Helm client
 ```
