@@ -55,7 +55,7 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
     ```bash
     # Note substitute your  username  [YOUR_USERNAME]
-    docker build -t us.icr.io/appmod_ss/[YOUR_USERNAME]/pbw-mariadb-web:1.0.0 .
+    docker build -t us.icr.io/appmod_sst/[YOUR_USERNAME]/pbw-mariadb-web:1.0.0 .
     ```
 
 8. Log in to the Container registry with the following command:
@@ -68,7 +68,7 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
     ```bash
     # Note substitute your username e.g. user05 for  [YOUR_USERNAME]
-    docker push us.icr.io/appmod_ss/[YOUR_USERNAME]/pbw-mariadb-web:1.0.0
+    docker push us.icr.io/appmod_sst/[YOUR_USERNAME]/pbw-mariadb-web:1.0.0
     ```
 
 ### Step 2: Look at the structure of the Helm chart for the Plants By WebSphere app
@@ -111,7 +111,7 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 1. In your terminal window type the following command, substituting your terminal user for [YOUR_USERNAME].  **Note**: Helm charts can be deployed multiple  times but each deployment must have a unique name
 ```
-   helm install --name pbw-liberty-mariadb --set liberty.image.registry=us.icr.io --set liberty.image.namespace=appmod_ss/[YOUR_USERNAME] local/pbw-liberty-mariadb
+   helm install --name pbw-liberty-mariadb --set liberty.image.registry=us.icr.io --set liberty.image.namespace=appmod_sst/[YOUR_USERNAME] local/pbw-liberty-mariadb
 ```
 
 ### Step 6: Launch your deployed app
