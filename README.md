@@ -111,7 +111,8 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 1. In your terminal window type the following command, substituting your terminal user for [YOUR_USERNAME].  **Note**: Helm charts can be deployed multiple  times but each deployment must have a unique name
 ```
-   helm install --name pbw-liberty-mariadb --set liberty.image.registry=us.icr.io --set liberty.image.namespace=appmod_sst/[YOUR_USERNAME] local/pbw-liberty-mariadb
+   helm install --name pbw-liberty-mariadb --set liberty.image.registry=us.icr.io \
+   --set liberty.image.namespace=appmod_sst/[YOUR_USERNAME] local/pbw-liberty-mariadb
 ```
 
 ### Step 6: Launch your deployed app
