@@ -96,7 +96,7 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 ### Step 4: Configure Helm to serve up the repo via HTTP
 
-1. In your terminal window type the following command, to start the local test Helm repository substituting for [PORT_NUMBER]. If you're using a web based terminal as part of an IBM instructor led workshop, use a port number derived from your username so it will be unique and not conflict with other users. For example if your username is ``user23`` use port ``9023``, if your username is ``user09`` use port ``9009`` and so on. If you're using a terminal on your own machine use any free port number.
+1. In your terminal window type the following command, to start the local test Helm repository substituting for [PORT_NUMBER]. If you're using a web based terminal as part of an IBM instructor led workshop, use a port number derived from your username so it will be unique and not conflict with other users. The pattern is `9 + USER_NUMBER`. For example if your username is ``user023`` use port ``9023``, if your username is ``user009`` use port ``9009`` and so on. If you're using a terminal on your own machine use any free port number.
 
 ```
    helm serve --address 127.0.0.1:[PORT_NUMBER] &
