@@ -120,7 +120,7 @@ You'll commands to get the endpoint and port number of your deployed Helm releas
 
 1. Run the following command to get the port number of your deployed app
 ```
-   echo `kubectl --namespace default get service pbw-liberty-mariadb-liberty -o jsonpath='{.spec.ports[0].nodePort}'``
+   echo `kubectl --namespace default get service pbw-liberty-mariadb-liberty -o jsonpath='{.spec.ports[0].nodePort}'`
 ```
 
 2. Run the following command to get the external IP address  of the first worker node in your cluster
