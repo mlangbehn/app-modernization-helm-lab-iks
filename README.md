@@ -18,9 +18,7 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 ### Setup
 
-1. If following this lab as part of an IBM instructor led workshop, please follow these instructions to setup your workshop environment: https://gist.github.com/djccarew/83da0dca62dbc4951efddbe1f49105ca
-
-2. Initialize Helm client
+1. Initialize Helm client
 ```
    helm init --client-only
 ```
@@ -53,9 +51,10 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 7. Build a docker image  by typing in (or copying and pasting in) the following (uncommented) commands
 
+    >Note: if you don't have the environment variables in the command set, replace $CRNAMESPACE with your container registry namespace and $USERNAME with your lab user id.
+
     ```bash
-    # Note substitute your  username  [YOUR_USERNAME]
-    docker build -t us.icr.io/appmod_sst/[YOUR_USERNAME]/pbw-mariadb-web:1.0.0 .
+    docker build -t us.icr.io/$CRNAMESPACE/$USERNAME/pbw-mariadb-web:1.0.0 .
     ```
 
 8. Log in to the Container registry with the following command:
@@ -66,9 +65,10 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 9. Push the image to the IBM Container registry by typing in (or copying and pasting in) the following (uncommented) commands
 
+    >Note: if you don't have the environment variables in the command set, replace $CRNAMESPACE with your container registry namespace and $USERNAME with your lab user id.
+
     ```bash
-    # Note substitute your username e.g. user05 for  [YOUR_USERNAME]
-    docker push us.icr.io/appmod_sst/[YOUR_USERNAME]/pbw-mariadb-web:1.0.0
+    docker push us.icr.io/$CRNAMESPACE/$USERNAME/pbw-mariadb-web:1.0.0
     ```
 
 ### Step 2: Look at the structure of the Helm chart for the Plants By WebSphere app
@@ -83,52 +83,58 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 
 1. From your client terminal  type in (or copy and paste in) the following (uncommented) commands
-```
-   # Fetch required MariaDB chart
-   helm repo add ibmcom https://raw.githubusercontent.com/IBM/charts/master/repo/stable
-   helm dependency update chart/pbw-liberty-mariadb
 
-   # Generate the chart archive.
-   helm package chart/pbw-liberty-mariadb -d ~/.helm/repository/local
+    ```
+    # Fetch required MariaDB chart
+    helm repo add ibmcom https://raw.githubusercontent.com/IBM/charts/master/repo/stable
+    helm dependency update chart/pbw-liberty-mariadb
 
+    # Generate the chart archive.
+    helm package chart/pbw-liberty-mariadb -d ~/.helm/repository/local
 
-```
+    ```
 
 ### Step 4: Configure Helm to serve up the repo via HTTP
 
 1. In your terminal window type the following command, to start the local test Helm repository substituting for [PORT_NUMBER]. If you're using a web based terminal as part of an IBM instructor led workshop, use a port number derived from your username so it will be unique and not conflict with other users. The pattern is `9 + USER_NUMBER`. For example if your username is ``user023`` use port ``9023``, if your username is ``user009`` use port ``9009`` and so on. If you're using a terminal on your own machine use any free port number.
 
-```
-   helm serve --address 127.0.0.1:[PORT_NUMBER] &
-```
+    ```
+    helm serve --address 127.0.0.1:[PORT_NUMBER] &
+    ```
 
 2. In your terminal window type the following command. Verify that the contents of *index.yaml* are returned and it contains the chart archive you just added. Use the same port number you used in the previous instruction.
-```
-   curl http://127.0.0.1:[PORT_NUMBER]/charts/index.yaml
-```
+
+    ```
+    curl http://127.0.0.1:[PORT_NUMBER]/charts/index.yaml
+    ```
 
 ### Step 5: Deploy the legacy JEE app from your new Helm repo
 
 1. In your terminal window type the following command, substituting your terminal user for [YOUR_USERNAME].  **Note**: Helm charts can be deployed multiple  times but each deployment must have a unique name
-```
-   helm install --name pbw-liberty-mariadb --set liberty.image.registry=us.icr.io \
-   --set liberty.image.namespace=appmod_sst/[YOUR_USERNAME] local/pbw-liberty-mariadb
-```
+
+    >Note: if you don't have the environment variables in the command set, replace $CRNAMESPACE with your container registry namespace and $USERNAME with your lab user id.
+
+    ```
+    helm install --name pbw-liberty-mariadb --set liberty.image.registry=us.icr.io \
+    --set liberty.image.namespace=$CRNAMESPACE/$USERNAME local/pbw-liberty-mariadb
+    ```
 
 ### Step 6: Launch your deployed app
 
 You'll commands to get the endpoint and port number of your deployed Helm release.
 
 1. Run the following command to get the port number of your deployed app
-```
-   echo `kubectl --namespace default get service pbw-liberty-mariadb-liberty -o jsonpath='{.spec.ports[0].nodePort}'`
-```
+    ```
+    echo `kubectl --namespace default get service pbw-liberty-mariadb-liberty -o jsonpath='{.spec.ports[0].nodePort}'`
+    ```
 
 2. Run the following command to get the external IP address  of the first worker node in your cluster
-```bash
-   # Substitute your cluster name e.g. user05-cluster for [YOUR_CLUSTER_NAME]
-   ibmcloud ks workers [YOUR_CLUSTER_NAME] | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
-```
+
+    >Note: if you don't have the environment variables in the command set, replace $USERNAME with your lab user id.
+
+    ```bash
+    ibmcloud ks workers $USERNAME-cluster | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
+    ```
 3. In your browser's address bar enter the URL of your deployed app. The URL will be the external IP address of the first worker in your cluster followed by a colon and then followed by the port number of your deployed app. For example if your external IP is 169.61.73.182 and the port is 30961 the URL will be ```http://169.61.73.182:30961```
 
 4. Verify that the app's UI opens in another tab. Click on the **HELP** link.
