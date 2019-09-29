@@ -18,31 +18,56 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 ### Setup
 
-1. Initialize Helm client
+1. Let's log into the kubernetes cluster. From the web terminal, enter the following command:
 ```
-   helm init --client-only
+ibmcloud login -sso
 ```
 
-### Step 1: Clone the Github repo that contains the code, build an Open Liberty image of the app and then push it to the IBM Cloud Kubernetes container registry
+2. When asked about opening the url in a browser enter *n*
 
-1. Login in [your Github account](https://github.com)
+![loginSSO](./images/loginSSO.png)
 
-2. In the search bar at the top left type in `app-modernization-plants-by-websphere-jee6`
+3. Then, click on the link for the one time code. This will open up a new browser window for you to log into IBM Cloud, if you aren't logged in already. After logging in, you will be taken to a page with a one time passcode.
 
-    ![Search results](images/ss0.png)
+4. Copy the one time code.
 
-3. Select the repository `IBMAppModernization\app-modernization-plants-by-websphere-jee6` and then click on the **Fork** icon
+![one time code](./images/oneTimeCode.png)
 
-4. Click the **Clone or download** button from your copy of the forked repo and copy the HTTPS URL to your clipboard
+5. Go back to your terminal and paste in the code that you copied and press enter. Since this input is masked for privacy, you will not see the characters appear.
 
-    ![Clone URL](images/ss00.png)
+6. If asked to select an account, enter the number for the "Sprint PoC" account
 
-5. From a client terminal window clone the Git repo  with  the following commands  appending the HTTPS URL from your clipboard
+![logging in](./images/loggingIn.png)
 
-    ```text
-    git clone [HTTPS URL for NEW REPO]
-    cd app-modernization-plants-by-websphere-jee6
-    ```
+7. When asked to select a region, select the number for *us-south*.
+
+8. If asked to update, enter *n*
+
+Now that we are authenticated with IBM Cloud, we need to get the connection information for our cluster
+
+9. Enter the following command to get the cluster configuration but replace *cluster_name* with the name of the cluster given to you:
+```
+ibmcloud ks cluster config cluster_name
+```
+
+10. Then copy the yellow export command that appears in your terminal, paste it back into your terminal, and press enter.
+
+![exportCommand](./images/exportCommand.png)
+
+Now that we are authenticated with the cluster, we can use the Kubernetes CLI (kubectl) to interact with our cluster.
+
+11. Next let's install helm. Run the following commands:
+```
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+helm init --upgrade
+kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
+```
+
+
+### Step 1: Build an Open Liberty image of the app and then push it to the IBM Cloud Kubernetes container registry
+
+
 6. Build the application .ear file using Maven by typing in (or copying and pasting in) the following command
 
     ```text
@@ -52,6 +77,14 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 7. Build a docker image  by typing in (or copying and pasting in) the following (uncommented) commands
 
     >Note: if you don't have the environment variables in the command set, replace $CRNAMESPACE with your container registry namespace and $USERNAME with your lab user id.
+
+    Run the following commands, replacing *lab_username* with your lab username
+    ```
+    export CRNAMESPACE=sprint
+    export USERNAME=lab_username
+    ```
+
+    Then run the following command to build a docker image
 
     ```bash
     docker build -t us.icr.io/$CRNAMESPACE/$USERNAME/pbw-mariadb-web:1.0.0 .
@@ -82,7 +115,7 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 ### Step 3: Create the artifacts for the Helm repository
 
 
-1. From your client terminal  type in (or copy and paste in) the following (uncommented) commands
+1. From your web terminal  type in (or copy and paste in) the following (uncommented) commands
 
     ```
     # Fetch required MariaDB chart
@@ -96,11 +129,13 @@ In this lab you'll create a Helm chart repository and use it to deploy a small J
 
 ### Step 4: Configure Helm to serve up the repo via HTTP
 
-1. In your terminal window type the following command, to start the local test Helm repository substituting for [PORT_NUMBER]. If you're using a web based terminal as part of an IBM instructor led workshop, use a port number derived from your username so it will be unique and not conflict with other users. The pattern is `9 + USER_NUMBER`. For example if your username is ``user023`` use port ``9023``, if your username is ``user009`` use port ``9009`` and so on. If you're using a terminal on your own machine use any free port number.
+1. In your terminal window type the following command, to start the local test Helm repository substituting for [PORT_NUMBER]. If you're using a web based terminal as part of an IBM instructor led workshop, use a port number derived from your username so it will be unique and not conflict with other users. The pattern is `90 + USER_NUMBER`. For example if your username is ``user23`` use port ``9023``, if your username is ``user09`` use port ``9009`` and so on. If you're using a terminal on your own machine use any free port number.
 
     ```
     helm serve --address 127.0.0.1:[PORT_NUMBER] &
     ```
+
+    Then press enter.
 
 2. In your terminal window type the following command. Verify that the contents of *index.yaml* are returned and it contains the chart archive you just added. Use the same port number you used in the previous instruction.
 
@@ -130,12 +165,21 @@ You'll commands to get the endpoint and port number of your deployed Helm releas
 
 2. Run the following command to get the external IP address  of the first worker node in your cluster
 
-    >Note: if you don't have the environment variables in the command set, replace $USERNAME with your lab user id.
+    >Note: if you don't have the environment variables in the command set, replace cluster-name with the name of his cluster
 
     ```bash
-    ibmcloud ks workers $USERNAME-cluster | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
+    ibmcloud ks workers cluster-name | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
     ```
-3. In your browser's address bar enter the URL of your deployed app. The URL will be the external IP address of the first worker in your cluster followed by a colon and then followed by the port number of your deployed app. For example if your external IP is 169.61.73.182 and the port is 30961 the URL will be ```http://169.61.73.182:30961```
+3. In your browser's address bar enter the URL of your deployed app. To find the app URL, enter the following commands, replacing *YOUR_CLUSTER_NAME* with your cluster name.
+
+```
+nodeip=$(bx cs workers YOUR_CLUSTER_NAME | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1)
+port=$(kubectl --namespace default get service pbw-liberty-mariadb-liberty -o jsonpath='{.spec.ports[0].nodePort}')
+echo "http://${nodeip}:${port}"
+```
+
+Click on the address in the terminal to be taken to the app.
+
 
 4. Verify that the app's UI opens in another tab. Click on the **HELP** link.
 
@@ -150,3 +194,5 @@ You'll commands to get the endpoint and port number of your deployed Helm releas
 ## Summary
 
 With even small simple apps requiring multiple Kubernetes objects,  Helm charts greatly simplify the process of distributing and updating your Kubernetes based apps. Helm repos allow you to distribute your Helm charts via HTTP, further simplifying the process of distributing and deploying your apps.
+
+Continue on to the next lab, [building a CI/CD pipeline in Jenkins](https://github.com/odrodrig/app-modernization-cicd-lab-iks).
