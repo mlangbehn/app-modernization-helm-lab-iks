@@ -45,9 +45,14 @@ ibmcloud login -sso
 
 Now that we are authenticated with IBM Cloud, we need to get the connection information for our cluster
 
-9. Enter the following command to get the cluster configuration but replace *cluster_name* with the name of the cluster given to you:
+9. Run the following command to set your environment variable for your cluster name, replacing **your_cluster_name_here** with the name of your cluster:
 ```
-ibmcloud ks cluster config cluster_name
+export CLUSTER_NAME=your_cluster_name_here
+```
+
+9. Enter the following command to get the cluster configuration:
+```
+ibmcloud ks cluster config $CLUSTER_NAME
 ```
 
 10. Then copy the yellow export command that appears in your terminal, paste it back into your terminal, and press enter.
@@ -80,7 +85,7 @@ kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"templat
 
     Run the following commands, replacing *lab_username* with your lab username
     ```
-    export CRNAMESPACE=sprint
+    export CRNAMESPACE=sprint-workshop
     export USERNAME=lab_username
     ```
 
@@ -156,7 +161,7 @@ kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"templat
 
 ### Step 6: Launch your deployed app
 
-You'll commands to get the endpoint and port number of your deployed Helm release.
+You'll use the following commands to get the endpoint and port number of your deployed Helm release.
 
 1. Run the following command to get the port number of your deployed app
     ```
@@ -165,15 +170,14 @@ You'll commands to get the endpoint and port number of your deployed Helm releas
 
 2. Run the following command to get the external IP address  of the first worker node in your cluster
 
-    >Note: if you don't have the environment variables in the command set, replace cluster-name with the name of his cluster
 
     ```bash
-    ibmcloud ks workers cluster-name | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
+    ibmcloud ks workers $CLUSTER_NAME | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
     ```
-3. In your browser's address bar enter the URL of your deployed app. To find the app URL, enter the following commands, replacing *YOUR_CLUSTER_NAME* with your cluster name.
+3. In your browser's address bar enter the URL of your deployed app. To find the app URL, enter the following commands
 
 ```
-nodeip=$(bx cs workers YOUR_CLUSTER_NAME | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1)
+nodeip=$(bx cs workers $CLUSTER_NAME | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1)
 port=$(kubectl --namespace default get service pbw-liberty-mariadb-liberty -o jsonpath='{.spec.ports[0].nodePort}')
 echo "http://${nodeip}:${port}"
 ```
